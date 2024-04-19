@@ -29,5 +29,20 @@ async def userpost(user:models.User):
     result = await collection.insert_one(user_dict)
     return {"message":"successfull"}
 
+@app.put("/users/{user_id}")
+async def update_user(user_id: str, user: models.User):
+    result = await collection.update_one({"_id": user_id}, {"$set": user.dict()})
+    if not result.modified_count:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "User updated successfully"}
+
+@app.delete("/users/{user_id}")
+async def delete_user(user_id: str):
+    result = await collection.delete_one({"_id": user_id})
+    if not result.deleted_count:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "User deleted successfully"}
+
+
 if __name__ == "__main__":
     uvicorn.run(app,host="127.0.0.1",port=8001)
